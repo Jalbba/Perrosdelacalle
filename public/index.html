@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es-UY">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1d7a74">
+  <meta name="description" content="Mapa comunitario de Rocha para reportar perros sueltos, agresivos o en situación de abandono. Anónimo y gratuito.">
+  <title>Ojo al Perro · Rocha</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icons/icon-180.png">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-brand">
+      <span class="topbar-logo">🐾</span>
+      <div>
+        <h1>Ojo al Perro</h1>
+        <p>Rocha · mapa comunitario</p>
+      </div>
+    </div>
+    <a class="topbar-sos" href="tel:911" aria-label="Llamar al 911">🚨 911</a>
+  </header>
+
+  <main>
+    <!-- ======================= MAPA ======================= -->
+    <section id="view-map" class="view active">
+      <div id="map" aria-label="Mapa de reportes en Rocha"></div>
+
+      <div class="map-chips" id="filter-chips">
+        <button class="chip active" data-type="todos">Todos</button>
+        <button class="chip" data-type="suelto">🐕 Suelto</button>
+        <button class="chip" data-type="agresivo">⚠️ Agresivo</button>
+        <button class="chip" data-type="jauria">🐾 Jauría</button>
+        <button class="chip" data-type="abandono">💔 Abandono</button>
+        <button class="chip" data-type="perdido">🔍 Perdido</button>
+        <button class="chip" data-type="otro">📋 Otro</button>
+      </div>
+
+      <button id="btn-locate" class="map-locate" aria-label="Ir a mi ubicación">📍</button>
+
+      <!-- Selector de pin (paso "¿dónde?") -->
+      <div id="pin-picker" class="pin-picker hidden">
+        <div class="pin-crosshair" aria-hidden="true">📍</div>
+        <div class="pin-picker-bar">
+          <p>Mové el mapa hasta que el pin quede <strong>donde pasó</strong></p>
+          <div class="pin-picker-actions">
+            <button id="pin-cancel" class="btn btn-ghost">Cancelar</button>
+            <button id="pin-confirm" class="btn btn-primary">Confirmar lugar ✓</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================= LISTA ======================= -->
+    <section id="view-list" class="view">
+      <div class="list-head">
+        <h2>Reportes recientes</h2>
+        <p id="list-stats" class="list-stats"></p>
+        <div class="list-sort">
+          <button class="chip active" data-sort="recientes">🕐 Recientes</button>
+          <button class="chip" data-sort="votados">👍 Más votados</button>
+        </div>
+      </div>
+      <div id="report-cards" class="cards"></div>
+      <div id="list-empty" class="empty hidden">
+        <span>🐶</span>
+        <p>Todavía no hay reportes.<br>¡Sé la primera persona en avisarle a tu comunidad!</p>
+      </div>
+    </section>
+
+    <!-- ======================= AYUDA ======================= -->
+    <section id="view-help" class="view">
+      <div class="help">
+
+        <div class="help-card help-card-urgent">
+          <h3>🚨 ¿Ataque en curso o emergencia?</h3>
+          <p>Si un perro está atacando a una persona o animal <strong>en este momento</strong>, llamá ya al</p>
+          <a class="btn btn-danger btn-big" href="tel:911">📞 911 — Emergencias</a>
+        </div>
+
+        <div class="help-card">
+          <h3>🏛️ Bienestar Animal — ¿a dónde llamo?</h3>
+          <ul class="contact-list">
+            <li>
+              <strong>INBA — Instituto Nacional de Bienestar Animal</strong>
+              <span>Denuncias por maltrato, perros sueltos o tenencia irresponsable</span>
+              <a class="btn btn-outline" href="tel:08005384">📞 0800 5384 (línea gratuita)</a>
+              <a class="btn btn-outline" href="mailto:inba@mgap.gub.uy">✉️ inba@mgap.gub.uy</a>
+              <a class="btn btn-outline" href="https://www.gub.uy/tramites/denuncia-situaciones-infrinjan-normas-relativas-bienestar-animal-tenencia-responsable-animales" target="_blank" rel="noopener">🌐 Denuncia online en gub.uy</a>
+            </li>
+            <li>
+              <strong>Intendencia de Rocha — División Bienestar Animal</strong>
+              <span>Castraciones gratuitas y reclamos en el departamento</span>
+              <a class="btn btn-outline" href="tel:1955,149">📞 1955 — interno 149</a>
+              <a class="btn btn-outline" href="https://www.rocha.gub.uy/portal/index.php?seccion=bienestar-animal" target="_blank" rel="noopener">🌐 rocha.gub.uy</a>
+            </li>
+          </ul>
+          <p class="help-note">Este mapa es comunitario y <strong>no reemplaza la denuncia oficial</strong>: si la situación es grave, denunciá también ante el INBA.</p>
+        </div>
+
+        <div class="help-card">
+          <h3>🛡️ Si te cruzás con un perro agresivo</h3>
+          <ul class="tips">
+            <li><strong>No corras ni grites:</strong> activa su instinto de persecución.</li>
+            <li><strong>Quedate quieto/a</strong>, de costado, sin mirarlo fijo a los ojos.</li>
+            <li><strong>Poné algo entre medio:</strong> mochila, bici, campera.</li>
+            <li><strong>Alejate despacio</strong>, caminando hacia atrás, sin darle la espalda.</li>
+            <li>Si te derriba, <strong>hacete un bollito</strong>: protegé cuello y cara con los brazos.</li>
+            <li>Ante una mordedura, lavá con agua y jabón y <strong>consultá al médico</strong>.</li>
+          </ul>
+        </div>
+
+        <div class="help-card">
+          <h3>📷 Cómo subir tus fotos y videos (gratis, con Google Drive)</h3>
+          <p>Para que la app sea liviana y gratuita, las fotos se comparten con un link de tu propio Google Drive:</p>
+          <ol class="steps">
+            <li>Abrí la app de <strong>Google Drive</strong> en tu celular (viene con tu cuenta de Gmail).</li>
+            <li>Tocá el botón <strong>＋ Nuevo → Subir</strong> y elegí las fotos o videos.</li>
+            <li>Cuando termine de subir, mantené apretado el archivo (o tocá <strong>⋮</strong>) y elegí <strong>Compartir</strong>.</li>
+            <li>En "Acceso general" cambiá a <strong>«Cualquier persona con el enlace»</strong>.</li>
+            <li>Tocá <strong>Copiar enlace</strong> y pegalo en tu reporte. ¡Listo! 🎉</li>
+          </ol>
+          <p class="help-note">💡 Si son varias fotos, creá una carpeta, subí todo ahí y compartí el link de la carpeta.</p>
+        </div>
+
+        <div class="help-card">
+          <h3>ℹ️ Sobre esta app</h3>
+          <p>Ojo al Perro es un proyecto comunitario, anónimo y sin fines de lucro para el departamento de Rocha. No se piden datos personales ni se crean cuentas. Los reportes son responsabilidad de quien los publica: <strong>no incluyas nombres ni datos de personas</strong>.</p>
+          <p class="help-note">📲 Tip: agregá esta página a tu pantalla de inicio (menú del navegador → «Agregar a pantalla de inicio») y usala como una app.</p>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- ======================= BARRA INFERIOR ======================= -->
+  <nav class="tabbar">
+    <button class="tab active" data-view="map"><span>🗺️</span>Mapa</button>
+    <button id="fab" class="fab" aria-label="Crear reporte">＋<span>Reportar</span></button>
+    <button class="tab" data-view="list"><span>📋</span>Reportes</button>
+    <button class="tab" data-view="help"><span>🆘</span>Ayuda</button>
+  </nav>
+
+  <!-- ======================= NUEVO REPORTE ======================= -->
+  <div id="sheet-new" class="sheet-backdrop hidden">
+    <div class="sheet" role="dialog" aria-modal="true" aria-label="Nuevo reporte">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head">
+        <h2 id="new-title">¿Qué pasó?</h2>
+        <button class="sheet-close" data-close="sheet-new" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="wizard-dots"><span class="dot active"></span><span class="dot"></span><span class="dot"></span></div>
+
+      <!-- Paso 1: qué pasó -->
+      <div class="wstep active" data-step="1">
+        <div class="type-grid" id="type-grid">
+          <button class="type-btn" data-type="suelto"><span>🐕</span>Perro suelto</button>
+          <button class="type-btn" data-type="agresivo"><span>⚠️</span>Perro agresivo</button>
+          <button class="type-btn" data-type="jauria"><span>🐾</span>Jauría</button>
+          <button class="type-btn" data-type="abandono"><span>💔</span>Abandono / maltrato</button>
+          <button class="type-btn" data-type="perdido"><span>🔍</span>Perro perdido</button>
+          <button class="type-btn" data-type="otro"><span>📋</span>Otro</button>
+        </div>
+        <label class="field">
+          <span>Contanos qué pasó</span>
+          <textarea id="new-description" rows="4" maxlength="1000"
+            placeholder="Ej: Un perro grande color marrón anda suelto por la rambla, persiguió a dos ciclistas..."></textarea>
+          <small id="desc-count">0 / 1000</small>
+        </label>
+        <label class="field">
+          <span>¿Cuándo pasó?</span>
+          <input type="datetime-local" id="new-when">
+        </label>
+        <button class="btn btn-primary btn-big" id="step1-next">Siguiente: ¿dónde? →</button>
+      </div>
+
+      <!-- Paso 2: dónde (se elige sobre el mapa con el pin-picker) -->
+      <div class="wstep" data-step="2">
+        <p class="wstep-info">Ahora marcá en el mapa el lugar exacto donde pasó. Podés moverte y hacer zoom.</p>
+        <button class="btn btn-primary btn-big" id="step2-pick">🗺️ Marcar en el mapa</button>
+        <button class="btn btn-outline btn-big" id="step2-gps">📍 Usar mi ubicación actual</button>
+        <p id="step2-status" class="wstep-status hidden">✅ Lugar marcado</p>
+        <div class="wstep-nav">
+          <button class="btn btn-ghost" data-goto="1">← Atrás</button>
+          <button class="btn btn-primary" id="step2-next" disabled>Siguiente →</button>
+        </div>
+      </div>
+
+      <!-- Paso 3: fotos + enviar -->
+      <div class="wstep" data-step="3">
+        <label class="field">
+          <span>Link a fotos o videos <em>(opcional pero recomendado)</em></span>
+          <input type="url" id="new-drive" inputmode="url" placeholder="https://drive.google.com/...">
+        </label>
+        <details class="drive-help">
+          <summary>📷 ¿Cómo consigo el link? (Google Drive, gratis)</summary>
+          <ol class="steps">
+            <li>Abrí <strong>Google Drive</strong> y subí tus fotos/videos (＋ Nuevo → Subir).</li>
+            <li>Mantené apretado el archivo → <strong>Compartir</strong>.</li>
+            <li>Cambiá el acceso a <strong>«Cualquier persona con el enlace»</strong>.</li>
+            <li><strong>Copiá el enlace</strong> y pegalo arriba. ¡Listo!</li>
+          </ol>
+        </details>
+        <!-- Honeypot anti-bots: invisible para humanos -->
+        <input type="text" id="new-website" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" class="hp">
+        <p class="help-note">🔒 El reporte es 100% anónimo. No publiques nombres ni datos de personas.</p>
+        <div class="wstep-nav">
+          <button class="btn btn-ghost" data-goto="2">← Atrás</button>
+          <button class="btn btn-primary" id="btn-submit">Publicar reporte 🐾</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================= DETALLE ======================= -->
+  <div id="sheet-detail" class="sheet-backdrop hidden">
+    <div class="sheet" role="dialog" aria-modal="true" aria-label="Detalle del reporte">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head">
+        <h2 id="detail-title">Reporte</h2>
+        <button class="sheet-close" data-close="sheet-detail" aria-label="Cerrar">✕</button>
+      </div>
+      <div id="detail-body" class="detail-body"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
