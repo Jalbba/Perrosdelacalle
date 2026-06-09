@@ -9,6 +9,9 @@ services:
     startCommand: npm start
     healthCheckPath: /api/reports
     envVars:
+      # Node 24 LTS: trae node:sqlite estable (la app no compila nada nativo)
+      - key: NODE_VERSION
+        value: "24"
       - key: IP_SALT
         generateValue: true
       - key: TOKEN_SECRET
