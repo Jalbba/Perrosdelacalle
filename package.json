@@ -9,7 +9,7 @@
     "icons": "node scripts/generate-icons.js"
   },
   "engines": {
-    "node": ">=18"
+    "node": "22.x"
   },
   "dependencies": {
     "better-sqlite3": "^11.5.0",

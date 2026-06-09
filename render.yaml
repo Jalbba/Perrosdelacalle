@@ -9,6 +9,9 @@ services:
     startCommand: npm start
     healthCheckPath: /api/reports
     envVars:
+      # Node 22 LTS: better-sqlite3 no compila en Node 24/25
+      - key: NODE_VERSION
+        value: "22"
       - key: IP_SALT
         generateValue: true
       - key: TOKEN_SECRET

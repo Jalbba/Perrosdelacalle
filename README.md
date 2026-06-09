@@ -21,7 +21,7 @@ npm start
 # → http://localhost:3000
 ```
 
-Requiere Node 18+. La base SQLite se crea sola en `data/reportes.db`.
+Requiere **Node 22 LTS** (better-sqlite3 todavía no compila en Node 24/25). La base SQLite se crea sola en `data/reportes.db`.
 
 ## Desplegar en Render (recomendado)
 
