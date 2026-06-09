@@ -1,0 +1,28 @@
+# Despliegue en Render (https://render.com)
+# "Blueprints" → New Blueprint Instance → apuntar a este repo.
+services:
+  - type: web
+    name: ojo-al-perro-rocha
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/reports
+    envVars:
+      - key: IP_SALT
+        generateValue: true
+      - key: TOKEN_SECRET
+        generateValue: true
+      # Descomentá y poné una clave para poder borrar reportes ofensivos:
+      # - key: ADMIN_KEY
+      #   sync: false
+
+    # ⚠️ En el plan free el disco es efímero: la base se reinicia con cada
+    # deploy. Para datos persistentes, pasate al plan Starter y descomentá:
+    # disk:
+    #   name: datos
+    #   mountPath: /var/data
+    #   sizeGB: 1
+    # y agregá la variable de entorno:
+    #   - key: DATA_DIR
+    #     value: /var/data
