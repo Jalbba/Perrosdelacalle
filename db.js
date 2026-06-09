@@ -1,13 +1,16 @@
 const fs = require('fs');
 const path = require('path');
-const Database = require('better-sqlite3');
+// SQLite incluido en Node (node:sqlite): cero dependencias nativas, así el
+// deploy nunca necesita compilar C++ (node-gyp). Estable en Node 24+;
+// en Node 22 requiere el flag --experimental-sqlite.
+const { DatabaseSync } = require('node:sqlite');
 
 // DATA_DIR permite montar un disco persistente en Render (ej: /var/data)
 const dataDir = process.env.DATA_DIR || path.join(__dirname, 'data');
 fs.mkdirSync(dataDir, { recursive: true });
 
-const db = new Database(path.join(dataDir, 'reportes.db'));
-db.pragma('journal_mode = WAL');
+const db = new DatabaseSync(path.join(dataDir, 'reportes.db'));
+db.exec('PRAGMA journal_mode = WAL;');
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS reports (

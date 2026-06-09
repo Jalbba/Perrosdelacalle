@@ -17,11 +17,12 @@ Todo es **anónimo**: no hay cuentas ni datos personales. El spam se controla co
 
 ```bash
 npm install
-npm start
+npm start                              # Node 24+
+node --experimental-sqlite server.js   # Node 22.5–23.3
 # → http://localhost:3000
 ```
 
-Requiere **Node 22 LTS** (better-sqlite3 todavía no compila en Node 24/25). La base SQLite se crea sola en `data/reportes.db`.
+Usa el SQLite **incluido en Node** (`node:sqlite`), así que no hay nada nativo que compilar. La base se crea sola en `data/reportes.db`.
 
 ## Desplegar en Render (recomendado)
 
@@ -55,4 +56,4 @@ Requiere **Node 22 LTS** (better-sqlite3 todavía no compila en Node 24/25). La 
 
 ## Stack
 
-Express + better-sqlite3 en el backend; HTML/CSS/JS vanilla + Leaflet en el frontend. Sin frameworks, sin build step, sin API keys. Los íconos PNG de la PWA se regeneran con `npm run icons`.
+Express + SQLite nativo de Node (`node:sqlite`) en el backend; HTML/CSS/JS vanilla + Leaflet en el frontend. Sin frameworks, sin build step, sin API keys y sin dependencias compiladas. Los íconos PNG de la PWA se regeneran con `npm run icons`.
